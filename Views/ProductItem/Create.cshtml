@@ -1,0 +1,96 @@
+@model abibas_back.Models.ProductItem
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>ProductItem</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IsSizeAndFit" class="control-label"></label>
+                <input asp-for="IsSizeAndFit" class="form-check-input" />
+                <span asp-validation-for="IsSizeAndFit" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IsFreeShipping" class="control-label"></label>
+                <input asp-for="IsFreeShipping" class="form-check-input" />
+                <span asp-validation-for="IsFreeShipping" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IsFreeShippingAndReturns" class="control-label"></label>
+                <input asp-for="IsFreeShippingAndReturns" class="form-check-input" />
+                <span asp-validation-for="IsFreeShippingAndReturns" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Fabric" class="control-label"></label>
+                <input asp-for="Fabric" class="form-control" />
+                <span asp-validation-for="Fabric" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Pattern" class="control-label"></label>
+                <input asp-for="Pattern" class="form-control" />
+                <span asp-validation-for="Pattern" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Fit" class="control-label"></label>
+                <input asp-for="Fit" class="form-control" />
+                <span asp-validation-for="Fit" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Neck" class="control-label"></label>
+                <input asp-for="Neck" class="form-control" />
+                <span asp-validation-for="Neck" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Sleeve" class="control-label"></label>
+                <input asp-for="Sleeve" class="form-control" />
+                <span asp-validation-for="Sleeve" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Style" class="control-label"></label>
+                <input asp-for="Style" class="form-control" />
+                <span asp-validation-for="Style" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

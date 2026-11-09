@@ -1,0 +1,101 @@
+@model IEnumerable<abibas_back.Models.ProductItem>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsSizeAndFit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsFreeShipping)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsFreeShippingAndReturns)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fabric)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pattern)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Neck)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sleeve)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Style)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.IsSizeAndFit)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.IsFreeShipping)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.IsFreeShippingAndReturns)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Fabric)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Pattern)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Fit)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Neck)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Sleeve)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Style)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -8,10 +8,18 @@ namespace abibas_back.Models
         {
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Wishlist> WhishLists { get; set; }
+        public DbSet<UserItem> UserItems { get; set; }
+        public DbSet<AddressItem> AddressItems { get; set; }
+        public DbSet<CommentItem> CommentItems { get; set; }
+        public DbSet<ProductItem> ProductItems { get; set; }
+        public DbSet<WishlistItem> WhishListItems { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // composite pk 
+            modelBuilder.Entity<WishlistItem>().HasKey(w => new {w.UserId, w.ProductId});
+        }
     }
 }
