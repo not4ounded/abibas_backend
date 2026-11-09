@@ -1,0 +1,6 @@
+@abibas_back_HostAddress = http://localhost:5222
+
+GET {{abibas_back_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
