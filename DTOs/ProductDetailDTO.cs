@@ -3,7 +3,7 @@
 namespace abibas_back.DTOs
 {
     /// <summary>
-    /// DTO for catalog 
+    /// DTO for product card 
     /// </summary>
     public class ProductDetailDTO
     {
@@ -13,9 +13,10 @@ namespace abibas_back.DTOs
         public string? ShortDescription { get; set; }
         public decimal Price { get; set; }
         public int AverageRating { get; set; }
-        public List<SizeItem> Sizes { get; set; } = new();
-        public List<ColorItem> Colors { get; set; } = new();
+        public ColorItem Color { get; set; }
         public Tag CurrentTag { get; set; }
-
+        public List<SizeItem> Sizes { get; set; } = new();
+        public List<ProductImageDTO> Images {  get; set; } = new();
+        public List<TechnicalDetailDTO> TechnicalDetails { get; set;} = new();
     }
 }

@@ -5,7 +5,7 @@ namespace abibas_back.DTOs
     /// <summary>
     /// DTO for product card
     /// </summary>
-    public class ProfuctShortDTO
+    public class ProductShortDTO
     {
         public long Id { get; set; }
         public string? Title { get; set; }

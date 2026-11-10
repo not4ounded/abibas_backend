@@ -13,6 +13,7 @@ namespace abibas_back.Models
         public DbSet<CommentItem> CommentItems { get; set; }
         public DbSet<ProductItem> ProductItems { get; set; }
         public DbSet<WishlistItem> WhishListItems { get; set; }
+        public DbSet<TechnicalDetailItem> DetailItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

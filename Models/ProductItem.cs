@@ -1,4 +1,5 @@
 ﻿using abibas_back.Enums;
+using Microsoft.Build.ObjectModelRemoting;
 
 namespace abibas_back.Models
 {
@@ -13,12 +14,12 @@ namespace abibas_back.Models
         public List<ColorItem> Colors { get; set; } = new();
         public bool IsFreeShipping {  get; set; }
         public bool IsFreeShippingAndReturns {  get; set; }
-        public string? Fabric { get; set; }
-        public string? Pattern { get; set; }
-        public string? Fit { get; set; }
-        public string? Neck { get; set; }
-        public string? Sleeve { get; set; }
-        public string? Style { get; set; }
-        public List<ProductImage> ProductImages { get; set; } = new();   
+        public List<ProductImage> ProductImages { get; set; } = new();  
+        public List<TechnicalDetailItem> TechnicalDetails { get; set; } = new();}
+        public string? Material { get; set; }
+        public string? Protection { get; set; }
+        public string? Design {  get; set; }
+        public string? Storage { get; set; }
+        public string? Care { get; set; }
     }
 }
