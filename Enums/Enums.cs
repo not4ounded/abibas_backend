@@ -60,4 +60,10 @@
         Bestseller,
         Light
     }
+    
+    public enum DeliveryType
+    {
+        Basic,
+        Quick
+    }
 }
