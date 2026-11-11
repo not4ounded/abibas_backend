@@ -1,13 +1,13 @@
 ﻿namespace abibas_back.Models
 {
     /// <summary>
-    /// Profile item
+    /// Order history
     /// </summary>
-    public class UserProfileItem
+    public class UserOrderHistoryItem
     {
-        public long UserId {  get; set; }
+        public long UserItemId {  get; set; }
         public UserItem User {  get; set; }
-        public long ProductId {  get; set; }
+        public long ProductItemId {  get; set; }
         public ProductItem Product { get; set; }
     }
 }

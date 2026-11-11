@@ -12,5 +12,6 @@ namespace abibas_back.DTOs
 
         [Required(ErrorMessage = "Обязательное поле")]
         public string Password { get; set; }
+        public bool? RememberMe { get; set; }
     }
 }

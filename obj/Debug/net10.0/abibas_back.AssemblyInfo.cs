@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("abibas_back")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3e582995104eca373d1cd5ebf5ebd2082d0baf53")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b949dadb711dc16e93389abb7aa183e292411b78")]
 [assembly: System.Reflection.AssemblyProductAttribute("abibas_back")]
 [assembly: System.Reflection.AssemblyTitleAttribute("abibas_back")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

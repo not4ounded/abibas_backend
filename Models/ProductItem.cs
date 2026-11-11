@@ -15,11 +15,8 @@ namespace abibas_back.Models
         public bool IsFreeShipping {  get; set; }
         public bool IsFreeShippingAndReturns {  get; set; }
         public List<ProductImage> ProductImages { get; set; } = new();  
-        public List<TechnicalDetailItem> TechnicalDetails { get; set; } = new();}
-        public string? Material { get; set; }
-        public string? Protection { get; set; }
-        public string? Design {  get; set; }
-        public string? Storage { get; set; }
-        public string? Care { get; set; }
+        public List<TechnicalDetailItem> TechnicalDetails { get; set; } = new();
+        public List<Tag> ProductTags { get; set; } = new();
+        public Gender GenderItem { get; set; }
     }
 }

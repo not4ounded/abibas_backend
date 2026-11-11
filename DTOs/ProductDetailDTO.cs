@@ -8,11 +8,12 @@ namespace abibas_back.DTOs
     public class ProductDetailDTO
     {
         public long Id { get; set; }
-        public string? Title { get; set; }
-        public string? Description { get; set; }
-        public string? ShortDescription { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string ShortDescription { get; set; }
+        public int Quantity { get; set; }
         public decimal Price { get; set; }
-        public int AverageRating { get; set; }
+        public double AverageRating { get; set; }
         public ColorItem Color { get; set; }
         public Tag CurrentTag { get; set; }
         public List<SizeItem> Sizes { get; set; } = new();

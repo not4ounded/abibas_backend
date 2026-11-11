@@ -8,8 +8,8 @@ namespace abibas_back.DTOs
     public class ProductShortDTO
     {
         public long Id { get; set; }
-        public string? Title { get; set; }
-        public string? ShortDescription {  get; set; }
+        public string Title { get; set; }
+        public string ShortDescription {  get; set; }
         public decimal Price { get; set; }
         public string ImageURL { get; set; } = null!;
         public ColorItem CurrentColorItem { get; set; }
