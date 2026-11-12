@@ -17,6 +17,5 @@ namespace abibas_back.Models
         public List<ProductImage> ProductImages { get; set; } = new();  
         public List<TechnicalDetailItem> TechnicalDetails { get; set; } = new();
         public List<Tag> ProductTags { get; set; } = new();
-        public Gender GenderItem { get; set; }
     }
 }

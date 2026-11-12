@@ -48,13 +48,7 @@
     
     public enum OrderStatus
     {
-        InProgress
-    }
-
-    public enum Gender
-    {
-        Women,
-        Men,
-        Kids
+        InProgress,
+        Delivered
     }
 }
