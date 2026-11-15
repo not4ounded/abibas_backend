@@ -19,7 +19,7 @@ namespace abibas_back
             });
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("AbibasDB"));
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();

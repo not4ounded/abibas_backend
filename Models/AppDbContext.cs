@@ -16,6 +16,6 @@ namespace abibas_back.Models
         public DbSet<TechnicalDetailItem> TechnicalDetailItems { get; set; }
         public DbSet<CheckoutItem> CheckoutItems { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
-
+        public DbSet<VerificationCodeItem> VerificationCodeItems { get; set; }
     }
 }

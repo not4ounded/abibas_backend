@@ -130,7 +130,7 @@
     {
       "code": "NU1901",
       "level": "Warning",
-      "message": "У пакета \"NuGet.Packaging\" 6.12.1 есть известная уязвимость https://github.com/advisories/GHSA-g4vj-cjjj-v7hg (уровень серьезности: низкий)",
+      "message": "У пакета \"NuGet.Packaging\" 6.12.1 есть известная уязвимость https://github.com/advisories/GHSA-g4vj-cjjj-v7hg (уровень серьезности: низкий уровень)",
       "projectPath": "C:\\Users\\Пользователь\\source\\repos\\abibas_back\\abibas_back\\abibas_back.csproj",
       "warningLevel": 1,
       "filePath": "C:\\Users\\Пользователь\\source\\repos\\abibas_back\\abibas_back\\abibas_back.csproj",
@@ -142,7 +142,7 @@
     {
       "code": "NU1901",
       "level": "Warning",
-      "message": "У пакета \"NuGet.Protocol\" 6.12.1 есть известная уязвимость https://github.com/advisories/GHSA-g4vj-cjjj-v7hg (уровень серьезности: низкий)",
+      "message": "У пакета \"NuGet.Protocol\" 6.12.1 есть известная уязвимость https://github.com/advisories/GHSA-g4vj-cjjj-v7hg (уровень серьезности: низкий уровень)",
       "projectPath": "C:\\Users\\Пользователь\\source\\repos\\abibas_back\\abibas_back\\abibas_back.csproj",
       "warningLevel": 1,
       "filePath": "C:\\Users\\Пользователь\\source\\repos\\abibas_back\\abibas_back\\abibas_back.csproj",
