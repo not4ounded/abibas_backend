@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using abibas_back.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace abibas_back.DTOs
 {

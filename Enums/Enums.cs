@@ -51,4 +51,9 @@
         InProgress,
         Delivered
     }
+
+    public enum RoleStatus
+    {
+        User
+    }
 }

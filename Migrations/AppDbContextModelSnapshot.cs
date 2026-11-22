@@ -232,6 +232,35 @@ namespace abibas_back.Migrations
                     b.ToTable("ProductItems");
                 });
 
+            modelBuilder.Entity("abibas_back.Models.RefreshTokenItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpirationTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokenItems");
+                });
+
             modelBuilder.Entity("abibas_back.Models.TechnicalDetailItem", b =>
                 {
                     b.Property<long>("Id")
@@ -265,6 +294,10 @@ namespace abibas_back.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ConfirmCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -285,6 +318,9 @@ namespace abibas_back.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("UserItems");
@@ -296,11 +332,8 @@ namespace abibas_back.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("CodeHash")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -309,6 +342,9 @@ namespace abibas_back.Migrations
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsInvalidated")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -347,6 +383,17 @@ namespace abibas_back.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("abibas_back.Models.RefreshTokenItem", b =>
+                {
+                    b.HasOne("abibas_back.Models.UserItem", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("abibas_back.Models.TechnicalDetailItem", b =>

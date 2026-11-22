@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using abibas_back.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace abibas_back.Models
 {
@@ -11,5 +12,6 @@ namespace abibas_back.Models
         public string Email { get; set; }
         public string PhoneNum {  get; set; }
         public string PasswordHash {  get; set; }
+        public RoleStatus Role { get; set; } = RoleStatus.User;
     }
 }
