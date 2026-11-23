@@ -140,3 +140,6 @@ crashlytics-build.properties
 .env
 .env.*
 !.env.example
+
+bin/
+obj/	
