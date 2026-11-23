@@ -79,7 +79,7 @@ namespace abibas_back.Controllers
 
             if (item is null)
             {
-                return BadRequest("Пользователь не найден");
+                return NotFound("Пользователь не найден");
             }
 
             var isCodeVerified = await VerifyOTPAsync(dto.Email, dto.VerificationCode);
