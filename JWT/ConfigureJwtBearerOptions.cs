@@ -12,7 +12,7 @@ namespace abibas_back.JWT
     {
         private readonly IJWTOptions _jwtOptions;
 
-        public ConfigureJwtBearerOptions(IOptions<IJWTOptions> jwtOptions)
+        public ConfigureJwtBearerOptions(IOptions<AuthOptions> jwtOptions)
         {
             _jwtOptions = jwtOptions.Value;
         }

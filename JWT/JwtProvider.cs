@@ -16,7 +16,7 @@ namespace abibas_back.JWT
     {
         private readonly IJWTOptions _jwtOptions;
 
-        public JwtProvider(IOptions<IJWTOptions> jwtOptions)
+        public JwtProvider(IOptions<AuthOptions> jwtOptions)
         {
             _jwtOptions = jwtOptions.Value;
         }

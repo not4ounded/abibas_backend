@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Cryptography;
 using abibas_back.JWT.Interfaces;
 using System.Text;
+using Microsoft.Build.Construction;
 
 namespace abibas_back.Controllers
 {
@@ -71,11 +72,9 @@ namespace abibas_back.Controllers
         public async Task<IActionResult> UserCompleteRegister([FromBody] UserCompleteRegisterDTO dto)
         {
             if (await _context.UserItems.AnyAsync(e => e.Email == dto.Email))
-            {
-                return Ok("Если почта не занята, то код отправлен");
-            }
+                return BadRequest("Неверный код верификации");
 
-            var item = await _context.VerificationCodeItems.FirstOrDefaultAsync(i => i.Email == dto.Email);
+            var item = await _context.VerificationCodeItems.OrderByDescending(i => i.Id).FirstOrDefaultAsync(i => i.Email == dto.Email);
 
             if (item is null)
             {
@@ -106,17 +105,27 @@ namespace abibas_back.Controllers
                 PasswordHash = hashedPassword,
             };
 
-            _context.UserItems.Add(userItem);
-
-            _context.VerificationCodeItems.Remove(item);
-
-            await _context.SaveChangesAsync();
 
             string tokenString = _jwtProvider.GenerateAccessToken(userItem);
             var refreshToken = _jwtProvider.GenerateRefreshToken(userItem);
 
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.UserItems.Add(userItem);
+                _context.VerificationCodeItems.Remove(item);
+                _context.RefreshTokenItems.Add(refreshToken.Value);
 
-            _context.RefreshTokenItems.Add(refreshToken.Value);
+
+                await _context.SaveChangesAsync();
+
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
 
             await _context.SaveChangesAsync();
 

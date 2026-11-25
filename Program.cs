@@ -26,7 +26,12 @@ namespace abibas_back
             builder.Services.AddAuthorization();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
-            builder.Services.Configure<IJWTOptions>(builder.Configuration.GetSection(IJWTOptions.SectionName)); // конфигурируем authoptions из secrets.json
+            builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(IJWTOptions.SectionName)); // конфигурируем authoptions из secrets.json
+
+            builder.Services.AddOptions<AuthOptions>()
+                .Bind(builder.Configuration.GetSection(AuthOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
             builder.Services.AddSingleton<IJWTProvider, JwtProvider>();
             builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>();
