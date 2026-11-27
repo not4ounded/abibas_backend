@@ -138,6 +138,32 @@ namespace abibas_back.Migrations
                     b.ToTable("CommentItems");
                 });
 
+            modelBuilder.Entity("abibas_back.Models.PasswordResetTokenItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetTokenItems");
+                });
+
             modelBuilder.Entity("abibas_back.Models.PaymentMethod", b =>
                 {
                     b.Property<long>("Id")
@@ -162,6 +188,43 @@ namespace abibas_back.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PaymentMethods");
+                });
+
+            modelBuilder.Entity("abibas_back.Models.PendingRegistrationItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AgreeToTerms")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNum")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PendingRegistrationsItems");
                 });
 
             modelBuilder.Entity("abibas_back.Models.ProductImage", b =>
@@ -247,7 +310,7 @@ namespace abibas_back.Migrations
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Token")
+                    b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -294,9 +357,8 @@ namespace abibas_back.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ConfirmCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("AgreeToTerms")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -322,6 +384,9 @@ namespace abibas_back.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Email" }, "IX_UserItem_Email")
+                        .IsUnique();
 
                     b.ToTable("UserItems");
                 });
@@ -370,6 +435,17 @@ namespace abibas_back.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("abibas_back.Models.PasswordResetTokenItem", b =>
+                {
+                    b.HasOne("abibas_back.Models.UserItem", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

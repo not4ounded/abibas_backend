@@ -1,17 +1,19 @@
 ﻿using abibas_back.DTOs;
+using abibas_back.JWT.Interfaces;
 using abibas_back.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
-using abibas_back.JWT.Interfaces;
 using System.Text;
-using Microsoft.Build.Construction;
 
 namespace abibas_back.Controllers
 {
+    /// <summary>
+    /// Контроллер авторизации
+    /// </summary>
     [ApiController]
-    [Route("auth/[Controller]")] // /auth/values
+    [Route("auth")] // /auth/values
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -24,46 +26,66 @@ namespace abibas_back.Controllers
         }
 
         /// <summary>
-        /// м/д проверки юзера в бд
+        /// эндпоинт регистрации (1 шаг)
         /// </summary>
-        /// <param name="dto">DTO с почтой</param>
+        /// <param name="dto">DTO с полями пользователя</param>
         /// <returns></returns>
         [HttpPost("register/init")]
         [EnableRateLimiting("IpRateLimit")]
         public async Task<IActionResult> UserInitRegister([FromBody] UserInitRegisterDTO dto)
         {
-            bool EmailFound = await _context.UserItems.AnyAsync(e => e.Email == dto.Email);
+            if (dto is null)
+                return BadRequest("Некорректные данные. Необходимо заполнить все обязательные поля");
+            
+            var item = await _context.UserItems.FirstOrDefaultAsync(i => i.Email == dto.Email);
 
-            if (!EmailFound)
-            {
+            if (item is not null)
+                return Ok("Если почта не занята, то код отправлен");
+
+            if (dto.Email is not null)
                 await GenerateAndSendCode(dto.Email);
-            }
+            else
+                return BadRequest("Некорректные данные. Необходимо заполнить все обязательные поля");
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            var pendingRegItem = new PendingRegistrationItem
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNum = dto.PhoneNum,
+                PasswordHash = hashedPassword,
+                AgreeToTerms = dto.AgreeToTerms
+            };
+
+            var oldPending = await _context.PendingRegistrationsItems.Where(p => p.Email == dto.Email).ToListAsync();
+            _context.PendingRegistrationsItems.RemoveRange(oldPending);
+            _context.PendingRegistrationsItems.Add(pendingRegItem);
+            await _context.SaveChangesAsync();
 
             return Ok(new { message = "Если почта не занята, то код отправлен" });
         }
 
         /// <summary>
-        /// повторная отправка 6-ти знач. кода 
+        /// эндпоинт повторной отправки 6-ти знач. кода 
         /// </summary>
         /// <param name="dto">DTO с почтой</param>
         /// <returns></returns>
         [HttpPost("register/resend")]
         [EnableRateLimiting("IpRateLimit")]
-        public async Task<IActionResult> CodeResend([FromBody] UserInitRegisterDTO dto)
+        public async Task<IActionResult> CodeResend([FromBody] UserResetDTO dto)
         {
             bool EmailFound = await _context.UserItems.AnyAsync(e => e.Email == dto.Email);
 
             if (!EmailFound)
-            {
                 await GenerateAndSendCode(dto.Email);
-            }
          
             return Ok(new { message = "Если почта не занята, то код отправлен" });
         }
 
-
         /// <summary>
-        /// Подтверждение личности пользователяы
+        /// эндпоинт регистрации (2 шаг)
         /// </summary>
         /// <param name="dto">DTO с данными пользователя</param>
         /// <returns></returns>
@@ -71,71 +93,62 @@ namespace abibas_back.Controllers
         [EnableRateLimiting("IpRateLimit")]
         public async Task<IActionResult> UserCompleteRegister([FromBody] UserCompleteRegisterDTO dto)
         {
-            if (await _context.UserItems.AnyAsync(e => e.Email == dto.Email))
-                return BadRequest("Неверный код верификации");
+            var otp = await _context.VerificationCodeItems.Where(x => x.Email == dto.Email && !x.IsInvalidated && x.ExpiresAt > DateTime.UtcNow)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
 
-            var item = await _context.VerificationCodeItems.OrderByDescending(i => i.Id).FirstOrDefaultAsync(i => i.Email == dto.Email);
-
-            if (item is null)
-            {
+            if (otp is null)
                 return NotFound("Пользователь не найден");
-            }
 
-            var isCodeVerified = await VerifyOTPAsync(dto.Email, dto.VerificationCode);
+            var isCodeVerified = await VerifyOTPAsync(otp, dto.VerificationCode);
 
-            if (!isCodeVerified)
-            {
+            if (!isCodeVerified || await _context.UserItems.AnyAsync(e => e.Email == dto.Email))
                 return BadRequest("Неверный код верификации");
-            }
-
-            if (DateTime.UtcNow > item.ExpiresAt)
-            {
-                return BadRequest("Код верификации истек");
-            }
-
-            // хеширование пароля 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-
-            var userItem = new UserItem
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                PhoneNum = dto.PhoneNum,
-                PasswordHash = hashedPassword,
-            };
-
-
-            string tokenString = _jwtProvider.GenerateAccessToken(userItem);
-            var refreshToken = _jwtProvider.GenerateRefreshToken(userItem);
 
             await using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
+                var pendingItem = await _context.PendingRegistrationsItems.FirstOrDefaultAsync(i => i.Email == dto.Email);
+
+                if (pendingItem is null)
+                    return BadRequest("Заявка устарела, повторите регистрацию заново");
+
+                var userItem = new UserItem
+                {
+                    FirstName = pendingItem.FirstName,
+                    LastName = pendingItem.LastName,
+                    Email = pendingItem.Email,
+                    PhoneNum = pendingItem.PhoneNum,
+                    PasswordHash = pendingItem.PasswordHash,
+                    AgreeToTerms = pendingItem.AgreeToTerms
+                };
+
+                _context.PendingRegistrationsItems.Remove(pendingItem);
                 _context.UserItems.Add(userItem);
-                _context.VerificationCodeItems.Remove(item);
-                _context.RefreshTokenItems.Add(refreshToken.Value);
-
-
                 await _context.SaveChangesAsync();
 
+                string tokenString = _jwtProvider.GenerateAccessToken(userItem);
+                var refreshToken = _jwtProvider.GenerateRefreshToken(userItem);
+
+                _context.VerificationCodeItems.Remove(otp);
+                _context.RefreshTokenItems.Add(refreshToken.Value);
+
+                await _context.SaveChangesAsync();
                 await tx.CommitAsync();
+
+                return Ok(new { AccessTokenResponse = tokenString, RefreshToken = refreshToken.Key, message = "Пользователь успешно зарегистрирован" });
             }
             catch
             {
                 await tx.RollbackAsync();
                 throw;
             }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new { AccessTokenResponse = tokenString, RefreshToken = refreshToken.Key, message = "Пользователь успешно зарегистрирован" });
         }
 
         /// <summary>
-        /// м/д логина пользователя
+        /// эндпоинт логина 
         /// </summary>
-        /// <param name="dto">логин дто</param>
+        /// <param name="dto">логин DTO</param>
         /// <returns></returns>
         [HttpPost("login")]
         [EnableRateLimiting("IpRateLimit")]
@@ -159,9 +172,85 @@ namespace abibas_back.Controllers
         }
 
         /// <summary>
+        /// эндпоинт 
+        /// </summary>
+        /// <param name="dto">DTO с почтой</param>
+        /// <returns></returns>
+        [HttpPost("forgot-password")]
+        [EnableRateLimiting("IpRateLimit")]
+        public async Task<IActionResult> SendResetPasswordURL([FromBody] UserResetDTO dto)
+        {
+            var user = await _context.UserItems.FirstOrDefaultAsync(i => i.Email == dto.Email);
+
+            if (user is null)
+                return Ok("Если аккаунт с указаной почтой существует, мы отправили на него инструкцию по смене пароля. \n" +
+                    "Проверьте входящие и папку \"Спам\". (консоль)");
+
+            // генерация токена для URL (смены пароля)
+            string rawToken = RandomNumberGenerator.GetHexString(64);
+
+            // хеширование токена
+            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawToken));
+            string tokenHash = Convert.ToHexString(hashBytes);
+
+            var resetToken = new PasswordResetTokenItem
+            {
+                UserId = user.Id,
+                User = user,
+                TokenHash = tokenHash,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+            };
+
+            _context.PasswordResetTokenItems.Add(resetToken);
+            await _context.SaveChangesAsync();
+
+            string baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string resetUrl = $"{baseUrl}/auth/reset-password?token={Uri.EscapeDataString(rawToken)}";
+
+            Console.WriteLine($"[Email MOGG] Ссылка для сброса пароля: {resetUrl}");
+
+            return Ok("Если аккаунт с указаной почтой существует, мы отправили на него инструкцию по смене пароля. \n" +
+                    "Проверьте входящие и папку \"Спам\". (консоль)");
+        }
+
+        /// <summary>
+        /// эндпоинт смены пароля
+        /// </summary>
+        /// <param name="dto">DTO со сменой пароля (с валидацией)</param>
+        /// <returns></returns>
+        [HttpPatch("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(dto.ResetToken));
+            string tokenHash = Convert.ToHexString(hashBytes);
+            
+            var resetToken = await _context.PasswordResetTokenItems
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+
+            if (resetToken is null || resetToken.ExpiresAt < DateTime.UtcNow)
+                return BadRequest("Недействительный или просроченный токен сброса пароля");
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            resetToken.User.PasswordHash = hashedPassword;
+
+            RemoveOldRefreshTokens(resetToken.User);
+
+            string tokenString = _jwtProvider.GenerateAccessToken(resetToken.User);
+            var refreshToken = _jwtProvider.GenerateRefreshToken(resetToken.User);
+
+            _context.RefreshTokenItems.Add(refreshToken.Value);
+
+            _context.PasswordResetTokenItems.Remove(resetToken);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { AccessTokenResponse = tokenString, refreshToken = refreshToken.Key, message = "Пароль успешно изменен"});
+        }
+
+        /// <summary>
         /// ротация рефреш токена
         /// </summary>
-        /// <param name="dto">дто рефреш токена</param>
+        /// <param name="dto">DTO рефреш токена</param>
         /// <returns></returns>
         [HttpPost("refresh")]
         [EnableRateLimiting("IpRateLimit")]
@@ -191,9 +280,9 @@ namespace abibas_back.Controllers
         }
 
         /// <summary>
-        /// выход из аккаунта
+        /// выход из аккаунта (обнуление рефреша)
         /// </summary>
-        /// <param name="dto">дто рефреш токена</param>
+        /// <param name="dto">DTO рефреш токена</param>
         /// <returns></returns>
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenDTO dto)
@@ -220,7 +309,7 @@ namespace abibas_back.Controllers
         /// <returns></returns>
         private async Task GenerateAndSendCode(string email)
         {
-            var oldCodes = _context.VerificationCodeItems.Where(v => v.Email == email);
+            var oldCodes = await _context.VerificationCodeItems.Where(v => v.Email == email).ToListAsync();
             _context.VerificationCodeItems.RemoveRange(oldCodes);
             var verificationCode = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
             var hashedCode = BCrypt.Net.BCrypt.HashPassword(verificationCode);
@@ -230,31 +319,25 @@ namespace abibas_back.Controllers
             {
                 Email = email,
                 CodeHash = hashedCode,
-                ExpiresAt = createdAt.AddMinutes(10)
+                ExpiresAt = createdAt.AddMinutes(10),
+                IsInvalidated = false
             };
 
             _context.VerificationCodeItems.Add(verificationCodeItem);
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"[Email MOGG] Код верификации для {email}: {verificationCode}");
+            Console.WriteLine($"[Email MOGG] Код верификации для {email}: {verificationCode}. Статус: [{verificationCodeItem.IsInvalidated}]");
         }
 
         /// <summary>
-        /// м/д для верификации и проверки otp-кода на совпадение
+        /// асинхронный м/д для верификации и проверки otp-кода на совпадение
         /// </summary>
-        /// <param name="email">почта</param>
-        /// <param name="inputCode">код</param>
+        /// <param name="otp">итем 6-ти значного кода</param>
+        /// <param name="inputCode">код введенный пользователем</param>
         /// <returns></returns>
-        private async Task<bool> VerifyOTPAsync(string email, string inputCode)
+        private async Task<bool> VerifyOTPAsync(VerificationCodeItem otp, string inputCode)
         {
             const int maxAttempts = 5;
-
-            var otp = await _context.VerificationCodeItems.Where(x => x.Email == email && !x.IsInvalidated && x.ExpiresAt > DateTime.UtcNow)
-                .OrderByDescending(x => x.Id)
-                .FirstOrDefaultAsync();
-
-            if (otp is null)
-                return false;
 
             if (otp.FailedAttempts >= maxAttempts)
                 return false;
@@ -277,7 +360,7 @@ namespace abibas_back.Controllers
         }
 
         /// <summary>
-        /// удаление невалидных рефреш токенов
+        /// м/д удаления невалидных рефреш токенов
         /// </summary>
         /// <param name="user">итем пользователя</param>
         private void RemoveOldRefreshTokens(UserItem user)

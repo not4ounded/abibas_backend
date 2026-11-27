@@ -56,8 +56,6 @@ namespace abibas_back.Controllers
                     .Where(u => u.UserId == userId)
                     .ExecuteUpdateAsync(s => s.SetProperty(p => p.IsRevoked, p => true));
 
-                await _context.SaveChangesAsync();
-
                 return Ok(new { message = "Данные успешно изменены. Пожалуйста, повторите вход", requiresLogin = emailChanged });
             }
 

@@ -57,6 +57,7 @@ namespace abibas_back.JWT
             var refreshToken = new RefreshTokenItem()
             {
                 TokenHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token))),
+                User = user,
                 UserId = user.Id,
                 ExpirationTime = DateTime.UtcNow.AddDays(7),
                 CreatedAt = DateTime.UtcNow,
