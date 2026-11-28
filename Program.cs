@@ -2,7 +2,6 @@ using abibas_back.JWT;
 using abibas_back.JWT.Interfaces;
 using abibas_back.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Threading.RateLimiting;
@@ -15,6 +14,7 @@ namespace abibas_back
         {
             var builder = WebApplication.CreateBuilder(args);
             var connectionString = builder.Configuration.GetConnectionString("AppDbContext") ?? throw new InvalidOperationException("Connection string 'AppDbContext' not found.");
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
             // Add services to the container.
 
@@ -36,6 +36,18 @@ namespace abibas_back
             builder.Services.AddSingleton<IJWTProvider, JwtProvider>();
             builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>();
 
+            // CORS c параметрами 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy.WithOrigins(allowedOrigins)
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                });
+            });
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
             builder.Services.AddSwaggerGen();
@@ -56,7 +68,9 @@ namespace abibas_back
             });
 
             var app = builder.Build();
-            
+
+            app.UseCors("FrontendPolicy");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
